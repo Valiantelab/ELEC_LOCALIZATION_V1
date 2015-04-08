@@ -970,6 +970,13 @@ if ~isfield(cfg, 'eleccolors'),     eleccolors= [];        else  eleccolors = cf
 if ~isfield(cfg, 'colorscale'),     colorscale=[];   else colorscale=cfg.colorscale; end
 if ~isfield(cfg, 'units'),     units=[];   else units=cfg.units; end
 if ~isfield(cfg, 'showlabels'),         showlabels='y';            else  showlabels=cfg.showlabels; end
+if ~isfield(cfg, 'plotcbar'),     plotcbar=[];   else plotcbar=cfg.plotcbar; end
+
+if ~isempty(eleccolors),
+    if isempty(plotcbar)
+        plotcbar='y';
+    end
+end
 
 if isempty(fs_dir)
     fs_dir=getenv('SUBJECTS_DIR');
@@ -1095,7 +1102,7 @@ for h=1:2,
     end
 end
 
-if ~isempty(eleccolors),
+if universalYes(plotcbar),
     % Colorbar
     h_cbar=axes('position',[.4 .06 .2 .03]);
     map=colormap;
@@ -1134,6 +1141,13 @@ if ~isfield(cfg, 'elecsize'),       elecsize = 8;          else  elecsize = cfg.
 if ~isfield(cfg, 'eleccolors'),     eleccolors= [];        else  eleccolors = cfg.eleccolors;        end
 if ~isfield(cfg, 'colorscale'),     colorscale=[];   else colorscale=cfg.colorscale; end
 if ~isfield(cfg, 'units'),     units=[];   else units=cfg.units; end
+if ~isfield(cfg, 'plotcbar'),     plotcbar=[];   else plotcbar=cfg.plotcbar; end
+
+if ~isempty(eleccolors),
+    if isempty(plotcbar)
+        plotcbar='y';
+    end
+end
 
 if isempty(fs_dir)
     fs_dir=getenv('SUBJECTS_DIR');
@@ -1221,7 +1235,7 @@ for v=1:6, %will run 1-6
 end
 
 %% Colorbar
-if ~isempty(eleccolors),
+if universalYes(plotcbar),
     h_cbar=axes('position',[.90 .1 .03 .8]);
     map=colormap;
     n_colors=size(map,1);
