@@ -25,7 +25,9 @@
 %     elecshape            -'marker' or 'sphere': The shape used to
 %                           represent electrodes. {default: 'marker'}
 %     eleccolors           -2D matrix of colors to fill electrodes
-%                           (rows=electrodes, columns=RGB values).
+%                           (rows=electrodes, columns=RGB values) or a vector 
+%                           of values that will be automatically converted 
+%                           into a colorscale.
 %                           {default: all electrodes filled with black}
 %     edgeblack            -If 'y', electrodes will all have a black
 %                           border. Otherwise, border will be same color as
@@ -189,7 +191,7 @@
 % cfg.title=[];
 % cfg_out=plotElecPial('TWH014',cfg);
 %
-% % Plot electrodes as spheres, colorcoded to reflect correlation value
+% % Plot electrodes as spheres, color coded to reflect correlation value
 % elecnames=cell(6,1);
 % for a=1:6,
 %    elecnames{a}=sprintf('RMF%d',a); 
