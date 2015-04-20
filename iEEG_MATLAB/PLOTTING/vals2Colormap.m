@@ -20,7 +20,8 @@ function [map, limits]=vals2Colormap(vals,type,cmap,minmax)
 %
 
 % History:
-% 2015-4: Made compatible with Matlab 2014's parula cmap
+% 2015-4: Made compatible with Matlab 2014's parula cmap: DG
+% 2015-4: Can handle saturated colormaps: Kathrin Müsch
 
 if nargin<3,
     if verLessThan('matlab','8.0.1')
@@ -113,12 +114,15 @@ elseif strcmpi(type,'minmax')
         cbar_max=max(minmax);
         cbar_min=min(minmax);
     end
-    temp_vals=vals-cbar_min;
-    %temp_vals=temp_vals/max(temp_vals); %should range from 0 to 1
-    temp_vals=temp_vals/cbar_max; %should range from 0 to 1
-    temp_vals=temp_vals*(n_colors-1)+1; %should range from 1 to n_colors
-    vals_col=round(temp_vals);
+    
+    cval = linspace(cbar_min,cbar_max,n_colors)';
+    nVals=length(vals);
+    vals_col=zeros(nVals,1);
+    for myidx = 1:nVals,
+        vals_col(myidx) = nearest(cval,vals(myidx))';
+    end
     map=rgb_vals(vals_col,:);
+    
 elseif strcmpi(type,'justpos') || strcmpi(type,'justneg')
     %colormap by limits
     if strcmpi(type,'justpos');
