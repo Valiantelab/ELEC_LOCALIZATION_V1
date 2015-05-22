@@ -341,6 +341,7 @@ end
 VerbReport('**** PLOTTING CORTICAL SURFACE WITH "plotElecPial.m" ****', ...
     2,verblevel);
 
+
 %% MAKE FIGURE
 if ~isempty(h_fig),
     figure(h_fig);
@@ -358,6 +359,7 @@ if ~isempty(h_ax),
 else
     h_ax=gca;
 end
+
 
 %% If plotting on inflated surface, load curvature values so that sulci and
 % gyri can be seen

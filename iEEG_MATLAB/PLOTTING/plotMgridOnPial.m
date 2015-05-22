@@ -1,5 +1,5 @@
-function plotMgridOnPial(fsub,hem,printEm,gridStems,gridDims)
-%function plotMgridOnPial(fsub,hem,printEm,gridStems,gridDims)
+function plotMgridOnPial(fsub,hem,printEm)
+%function plotMgridOnPial(fsub,hem,printEm)
 % 
 % Makes romni or lomni plots on a gray pial and DK atlas pial of a
 % patient's brain with electrodes colored according to mgrid file colors.
@@ -9,29 +9,22 @@ function plotMgridOnPial(fsub,hem,printEm,gridStems,gridDims)
 %  hem   - ['r' or 'l'] Hemisphere to plot
 %  printEm - If nonzero jpgs of the figures will be made in the subject's
 %            elec_recon folder
-%  gridStems - A string or cell array of strings indicating the stems of
-%              grids (e.g., 'LGr' or {'LGrA','LGrB'}
-%  gridDims - A n x 2 array where n=length(gridStems). Each row of the array 
-%             indicates the number of rwos and columns in the grid (e.g.,
-%             [8 8] or [4 8; 4 8]);
 %
 % Examples:
-% % Strips-only patient
 % plotMgridOnPial('TWH10','l',0);
-%
-% % Grid, strips, & depth patient
-% plotMgridOnPial('TWH11','l',0,'LTGrid',[8 8]);
 %
 %
 % Author:
 % David M. Groppe
 % March, 2015
 %
+
 % Future Work:
-%  -Check to see if this really does work with grids that have been cut
 %  -Add an option to make depths invisible
-%  -Currently I use derive_grid_lines.m to find the neighbors of
-%  electrodes. It might be easier to get this directly from the mgrid file.
+
+% History:
+% May 2015-Now electrode pairs are derived directly from mgrid file and
+% disabled electrodes are not shown.
 
 if nargin<4
     gridStems=[];
@@ -43,77 +36,41 @@ elseif ~iscell(gridStems)
 end
 
 %% Get mgrid info
-[~, elecLabels, elecRgb]=mgrid2matlab(fsub,hem);
+%[~, elecLabels, elecRgb]=mgrid2matlab(fsub,hem);
+[~, elecLabels, elecRgb, elecPairs, elecPresent]=mgrid2matlab(fsub,hem);
 
 elecnames=cell(1,length(elecLabels));
 for a=1:length(elecLabels),
     elecnames{a}=rmChar(elecLabels{a},'-');
 end
 
+pairPresent=zeros(size(elecPairs,1),1);
+for a=1:size(elecPairs,1),
+   elecPairs{a,1}=rmChar(elecPairs{a,1},'-');
+   elecPairs{a,2}=rmChar(elecPairs{a,2},'-');
+   elecId1=findstr_in_cell(elecPairs{a,1},elecnames,1);
+   elecId2=findstr_in_cell(elecPairs{a,2},elecnames,1);
+   pairPresent(a)=elecPresent(elecId1)*elecPresent(elecId2);
+end
 
 %% Collect electrode neighbors for plotElecPial
-pairs=cell(1,1);
 uniStems=[];
 uniStemsRgb=[];
 ct=0;
-for a=1:(length(elecLabels)-1)
+for a=1:length(elecLabels),
     %     if isempty(findstr(lower(elecLabels{a}),'depth'))
     %         %not a depth electrode, find a neighbor
     id=find(elecLabels{a}=='-');
-    elecnumA=str2num(elecLabels{a}(id+1:end));
-    elecstemA=elecLabels{a}(1:id-1);
+    elecstem=elecLabels{a}(1:id-1);
     
-    if ~sum(ismember(lower(elecstemA),lower(gridStems)))
-    %if ~sum(ismemberi(elecstemA,gridStems))
-        % Ignore the grids
-        if isempty(uniStems) || ~ismember(elecstemA,uniStems)
-            uniStems{length(uniStems)+1}=elecstemA;
-            uniStemsRgb(length(uniStems),1:3)=elecRgb(a,:);
-        end
-        
-        id=find(elecLabels{a+1}=='-');
-        elecnumB=str2num(elecLabels{a+1}(id+1:end));
-        elecstemB=elecLabels{a+1}(1:id-1);
-        if isempty(uniStems) || ~ismember(elecstemB,uniStems)
-            uniStems{length(uniStems)+1}=elecstemB;
-            uniStemsRgb(length(uniStems),1:3)=elecRgb(a+1,:);
-        end
-        
-        if strcmp(elecstemA,elecstemB)
-            ct=ct+1;
-            pairs{ct,1}=elecnames{a};
-            pairs{ct,2}=elecnames{a+1};
-            pairs{ct,3}=elecRgb(a,:);
-        end
+    if ~ismember(elecstem,uniStems)
+        ct=ct+1;
+        uniStems{ct}=elecstem;
+        uniStemsRgb(ct,1:3)=elecRgb(a,:);
     end
+
 end
 
-% Add grids
-if ~isempty(gridStems)
-    nGrid=length(gridStems);
-    for a=1:nGrid,
-        uniStems{length(uniStems)+1}=gridStems{a};
-        % find the grid's color
-        for b=1:length(elecLabels)
-            if findstr(lower(gridStems{a}),lower(elecLabels{b}))
-                uniStemsRgb(length(uniStems),1:3)=elecRgb(b,:);
-                break;
-            end
-        end
-        
-        gridLines=derive_grid_lines(gridStems{a},gridDims(a,:));
-        for b=1:size(gridLines,1)
-            tempVec=gridLines{b,2};
-            for c=2:length(tempVec)
-                ct=ct+1;
-                pairs{ct,1}=[gridLines{a,1} num2str(tempVec(c-1))];
-                pairs{ct,2}=[gridLines{a,1} num2str(tempVec(c))];
-                %pairs{ct,3}=[1 0 0]; % FIX!!
-                pairs{ct,3}=uniStemsRgb(length(uniStems),:);
-            end
-        end
-    end
-end
 
 % Format stems
 nUni=length(uniStems);
@@ -121,17 +78,18 @@ for a=1:nUni,
      uniStems{a}=rmSubstring(uniStems{a},'depth');
 end
 
+
 %%
-%for fLoop=1:1,
+%for fLoop=1:1, % ??
 for fLoop=1:2,
     cfg=[];
     cfg.view=[hem 'omni'];
     cfg.figid=fLoop;
-    cfg.eleccolors=elecRgb;
-    cfg.elecnames=elecnames;
+    cfg.eleccolors=elecRgb(find(elecPresent),:);
+    cfg.elecnames=elecnames(find(elecPresent));
     cfg.plotcbar='n';
     cfg.ignore_depth_elec='n';
-    cfg.pairs=pairs;
+    cfg.pairs=elecPairs(find(pairPresent),:);
     %cfg.showlabels='y';
     if fLoop==2
         cfg.overlay_parcellation='DK';
