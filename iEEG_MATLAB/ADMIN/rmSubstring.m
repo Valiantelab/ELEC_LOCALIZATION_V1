@@ -1,5 +1,5 @@
-function outStr=rm_substring(inStr,subStr,caseSensitive)
-%function outStr=rm_substring(inStr,subStr,caseSensitive)
+function outStr=rmSubstring(inStr,subStr,caseSensitive)
+%function outStr=rmSubstring(inStr,subStr,caseSensitive)
 %
 % This function removes the first occurrence of a substring from a string.
 %
@@ -9,7 +9,7 @@ function outStr=rm_substring(inStr,subStr,caseSensitive)
 %
 % Optional Input:
 %   caseSensitive - [1 or 0] If 0, letter case will be ignored when finding
-%                   a match of the substring
+%                   a match of the substring {default: 0}.
 %
 % See also: rm_char.m
 % David M. Groppe

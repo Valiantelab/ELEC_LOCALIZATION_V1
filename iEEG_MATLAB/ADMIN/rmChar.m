@@ -1,5 +1,5 @@
-function out_str=rm_char(in_str,subchar)
-%function out_str=rm_char(in_str,subchar)
+function out_str=rmChar(in_str,subchar)
+%function out_str=rmChar(in_str,subchar)
 %
 % This function removes ALL occurrences of a character from a string
 %

@@ -982,8 +982,17 @@ if ~isempty(eleccolors),
     end
 end
 
+global global_fs_dir;
 if isempty(fs_dir)
-    fs_dir=getenv('SUBJECTS_DIR');
+    if ~isempty(global_fs_dir)
+        fs_dir=global_fs_dir;
+    else
+        if ispc,
+            error('Hey mon, if you be using Windows you need to be specifying the fsurfsubdir input argument.');
+        else
+            fs_dir=getenv('SUBJECTS_DIR');
+        end
+    end
 end
 
 clear global cbar_min cbar_max cort;
@@ -1153,9 +1162,19 @@ if ~isempty(eleccolors),
     end
 end
 
+global global_fs_dir;
 if isempty(fs_dir)
-    fs_dir=getenv('SUBJECTS_DIR');
+    if ~isempty(global_fs_dir)
+        fs_dir=global_fs_dir;
+    else
+        if ispc,
+            error('Hey mon, if you be using Windows you need to be specifying the fsurfsubdir input argument.');
+        else
+            fs_dir=getenv('SUBJECTS_DIR');
+        end
+    end
 end
+
 
 clear global cbar_min cbar_max cort;
 
