@@ -1,4 +1,4 @@
-% function [handle]=cbarDG(arg,colors,minmax,grad,text_color)
+% function [handle]=cbarDG(arg,colors,minmax,grad,cmapName)
 %  Displays full or partial color bar
 %
 % Usage:
@@ -18,6 +18,7 @@
 %              (int n -> display colors [1:end-n]) {default: 0}
 %  minmax    - [min, max] range of values to label on colorbar 
 %  grad      - [integer] number of tick labels. {default: 5}.
+%  cmapName  - Name of the colormap (e.g., 'autumn' or 'parula')
 %
 % Example:
 %         >> colormap('default') % default colormap is 64-color 'jet'
@@ -25,7 +26,6 @@
 %                                % useful for showing >0 (warm) and 0 (green) 
 %                                % values only in a green=0 plot
 %
-% Note: text_color option is not fully coded yet!
 %
 % Author: Colin Humphries, Arnaud Delorme, CNL / Salk Institute, Feb. 1998-
 %
@@ -81,7 +81,7 @@
 % 12-13-98 added minmax arg -Scott Makeig
 % 01-25-02 reformated help & license, added links -ad 
 
-function [handle]=cbarDG(arg,colors,minmax,grad,text_color)
+function [handle]=cbarDG(arg,colors,minmax,grad,cmapName)
 
 if nargin < 2
   colors = 0;
@@ -123,7 +123,13 @@ if nargin < 4
 end;
 
 if nargin<5,
-   text_color='k'; 
+    if verLessThan('matlab','8.0.1')
+        map=colormap('jet');
+    else
+        map = colormap('parula');
+    end
+else
+   map=colormap(cmapName); 
 end
 
 %obj = findobj('tag','cbar','parent',gcf);
@@ -178,11 +184,6 @@ end
 % Draw colorbar using image()
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if verLessThan('matlab','8.0.1')
-    map=colormap('jet');
-else
-    map = colormap('parula');
-end
 n = size(map,1);
 
 if length(colors) == 1

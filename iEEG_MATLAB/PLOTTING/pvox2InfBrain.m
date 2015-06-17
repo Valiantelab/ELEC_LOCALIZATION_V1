@@ -1,9 +1,8 @@
-function [inf_coor, labels]=pvox2inf_brain(subj,hem,cfg)
-%function [avg_coords, avg_vids, sub_vids, labels]=pvox2inf_brain(subj,hem,cfg)
+function [inf_coor, labels]=pvox2InfBrain(subj,hem,cfg)
+%function [avg_coords, avg_vids, sub_vids, labels]=pvox2InfBrain(subj,hem,cfg)
 %
 
-% This function takes the "pialvox" coordinates (snapped to pial surface by
-% Alex's algorithm) and:
+% This function takes the "pial" coordinates (snapped to pial surface) and:
 % 1. finds the closest vertex on the pial surface
 % 2. maps that vertex to the inflated brain surface for that subject
 %
@@ -12,7 +11,7 @@ function [inf_coor, labels]=pvox2inf_brain(subj,hem,cfg)
 %   hem  ='l' or 'r'
 %
 % Optional Inputs: passed as fields in a configuration structure
-%   eleccoord = N-by-3 numeric array with electrode coordinates. {default:
+%   eleccoord = N-by-3 numeric array with electrode RAS coordinates. {default:
 %               not used; the function looks into the subject's Freesurfer
 %               folder for electrode coordinate file instead}
 %   elecnames = cell array of strings with electrode names, corresponding
@@ -24,7 +23,7 @@ function [inf_coor, labels]=pvox2inf_brain(subj,hem,cfg)
 %
 % Outputs:
 %   inf_coords = Electrode coordinates on FreeSurfer inflated pial surface
-%   labels     = Channel names (from PIALVOX file)
+%   labels     = Channel names (from *.PIAL file)
 %
 %
 % Author: 
@@ -32,6 +31,9 @@ function [inf_coor, labels]=pvox2inf_brain(subj,hem,cfg)
 % Mehtalab
 % April, 2013
 %
+
+% History:
+% 2015-6 Made compatible with new Yang method for brain shift correction: DG
 
 % parse input parameters in cfg structure and set defaults
 if  ~isfield(cfg,'eleccoord'),      eleccoord = []; else    eleccoord = cfg.eleccoord;      end
@@ -60,36 +62,41 @@ fname=[sub_dir '/surf/' hem 'h.pial'];
 pial=readSurfHelper(fname);
 
 %% get electrode coordinates
-if isempty(eleccoord) % no electrode coordinates have been passed in the function call: use the original code looking for .PIALVOX files
-    f=dir([sub_dir '/elec_recon/*.PIALVOX']);
+if isempty(eleccoord) % no electrode coordinates have been passed in the function call: use the original code looking for .PIAL files
+    f=dir([sub_dir '/elec_recon/*.PIAL']);
     files4bothsides=0;
     if length(f)>1,
         if hem(1)=='l',
-            f=dir([sub_dir '/elec_recon/*left.PIALVOX']);
+            f=dir([sub_dir '/elec_recon/*left.PIAL']);
             files4bothsides=1;
         else
-            f=dir([sub_dir '/elec_recon/*right.PIALVOX']);
+            f=dir([sub_dir '/elec_recon/*right.PIAL']);
             files4bothsides=1;
         end
     end
     if length(f)>1,
-        error('Too many possible PIALVOX files.  I do not know which to use.');
+        error('Too many possible PIAL files.  I do not know which to use.');
     end
     elec_coord=[sub_dir '/elec_recon/' f(1).name];
     id=find(f(1).name=='.');
     label_fname=[sub_dir '/elec_recon/' f(1).name(1:id) 'electrodeNames'];
     labels=textread(label_fname,'%s');
-    VOX_coor=dlmread(elec_coord);
-    VOX_coor=VOX_coor(:,2:4); %get rid of un-needed column
+    labels=labels(3:end); %get rid of data header
+
+    tempCsv=csv2cell(elec_coord,' ',2);
+    RAS_coor=zeros(size(tempCsv,1),1);
+    for csvLoopA=1:size(tempCsv,1),
+        for csvLoopB=1:3,
+            RAS_coor(csvLoopA,csvLoopB)=str2num(tempCsv{csvLoopA,csvLoopB});
+        end
+    end
+    if length(labels)~=size(RAS_coor,1)
+        error('# of electrode labels does NOT equal # of coordinates in PIAL file.');
+    end
 else % numeric electrode coordinates have been passed in the function call
-    VOX_coor=eleccoord;
+    RAS_coor=eleccoord;
     labels=elecnames;
 end
-
-% Convert PIALVOX coordinates to RAS
-VOX2RAS=[-1 0 0 128; 0 0 -1 128; 0 -1 0 128; 0 0 0 1];
-RAS_coor=(VOX2RAS*[VOX_coor'; ones(1, size(VOX_coor,1))])';
-RAS_coor=RAS_coor(:,1:3); %get rid of un-needed column
 
 
 %% Get vertices for electrodes on subject's pial surface

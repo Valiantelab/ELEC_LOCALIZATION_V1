@@ -1,4 +1,4 @@
-function [map, limits]=vals2Colormap(vals,type,cmap,minmax)
+function [map, limits, cmap]=vals2Colormap(vals,type,cmap,minmax)
 %function [map, limits]=vals2Colormap(vals,type,cmap,minmax)
 % creates colormap (i.e., colorscale)
 %
@@ -129,6 +129,7 @@ elseif strcmpi(type,'justpos') || strcmpi(type,'justneg')
         % Just positive values
         %rgb_vals=colormap('autumn');
         load autumn_cmap
+        cmap='autumn';
         if isempty(minmax)
             cbar_max=max(vals);
             cbar_min=0;
@@ -140,6 +141,7 @@ elseif strcmpi(type,'justpos') || strcmpi(type,'justneg')
         % Just positive values
         %rgb_vals=colormap('winter');
         load winter_cmap
+        cmap='winter';
         if isempty(minmax)
             cbar_max=0;
             cbar_min=min(vals);
@@ -156,7 +158,7 @@ elseif strcmpi(type,'justpos') || strcmpi(type,'justneg')
     n_vals=length(vals);
     map=zeros(n_vals,3);
     for i=1:n_vals
-        color_id=find_tpt(vals(i),data2color_values);
+        color_id=findTpt(vals(i),data2color_values);
         map(i,:)=rgb_vals(color_id,:);
     end
 else

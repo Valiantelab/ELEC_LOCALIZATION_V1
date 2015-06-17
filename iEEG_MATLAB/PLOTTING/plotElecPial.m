@@ -46,7 +46,7 @@
 %                           electrodes are in color). {default: not used}
 %     ignorechans          -Cell array of the names of electrodes that
 %                           will not be shown. {default: not used}
-%     ignore_depth_elec    -'y' or 'n': If 'y', depth electrodes will not
+%     ignoredepthelec    -'y' or 'n': If 'y', depth electrodes will not
 %                           be shown. Depth electrodes have the string
 %                           "depth" in their mgrid file names. {default: 'y'}
 %     onlyshow             -Cell array of the names of the only electrodes
@@ -186,7 +186,7 @@
 % % Plot depths with a semi-transparent pial surface
 % cfg=[];
 % cfg.view='ri';
-% cfg.ignore_depth_elec='n';
+% cfg.ignoredepthelec='n';
 % cfg.opaqueness=.5;
 % cfg.title=[];
 % cfg_out=plotElecPial('TWH014',cfg);
@@ -241,6 +241,7 @@
 % pm 8/12/14 debug ?omni view
 % dg 4/15 eleccolors can now be a vector of values from which a colorscale
 % is automatically derived
+% dg 6/15 now expects electrode coordinates and names in Yang method format
 
 %% TO DO
 % do auto colormap for electrodes (both jet and rb)?
@@ -276,7 +277,7 @@ if ~isfield(cfg, 'backgroundcolor'), backgroundcolor=[]; else backgroundcolor=cf
 if ~isfield(cfg, 'pairs'), electrode_pairs=[];  else electrode_pairs=cfg.pairs; end
 if ~isfield(cfg, 'linewidth'), linewidth=[];  else linewidth=cfg.linewidth; end
 if ~isfield(cfg, 'onlyshow'), onlyshow=[];  else onlyshow=cfg.onlyshow; end
-if ~isfield(cfg, 'ignore_depth_elec'), ignore_depth_elec='y'; else ignore_depth_elec=cfg.ignore_depth_elec; end
+if ~isfield(cfg, 'ignoredepthelec'), ignoredepthelec='y'; else ignoredepthelec=cfg.ignoredepthelec; end
 if ~isfield(cfg, 'edgeblack'),      edgeblack='y';         else edgeblack=cfg.edgeblack; end
 if ~isfield(cfg, 'elecshape'), electrodeshape='marker';  else electrodeshape=cfg.elecshape; end
 if ~isfield(cfg, 'showlabels'), showlabels=0;  else showlabels=universalYes(cfg.showlabels); end
@@ -284,6 +285,7 @@ if ~isfield(cfg, 'opaqueness'),      opaqueness=1;          else opaqueness=cfg.
 if ~isfield(cfg, 'clearglobal'),    clearglobal=1;          else clearglobal=cfg.clearglobal; end
 
 checkCfg(cfg,'plotElecPial.m');
+cmapName=[];
 
 if strcmpi(cfg.view,'omni')
     cfg_out=plotPialOmni(subj,cfg);
@@ -531,52 +533,58 @@ elec_sphere=0; %default
 if strcmpi(eleccoord,'no') || strcmpi(eleccoord,'n')
     display('...not plotting electrodes');
 else
-    VOX2RAS=[-1 0 0 128; 0 0 -1 128; 0 -1 0 128; 0 0 0 1];
+    %VOX2RAS=[-1 0 0 128; 0 0 -1 128; 0 -1 0 128; 0 0 0 1];
     if isnumeric(eleccoord) % PM moved that section up here
         if size(eleccoord,2)==3
             display('...Electrode input is matrix with coordinates.');
-            VOX_coor=eleccoord;
+            RAS_coor=eleccoord;
             elec_names=cfg.elecnames; % PM added this line; uses cfg.elecnames on purpose!
             if strcmpi(surftype,'inflated')
                 cfg_pvox2inf=[];
                 cfg_pvox2inf.fsurfsubdir=fs_dir;
-                cfg_pvox2inf.eleccoord=VOX_coor;
+                cfg_pvox2inf.eleccoord=RAS_coor;
                 cfg_pvox2inf.elecnames=elec_names;
                 RAS_coor=pvox2InfBrain(subj,side,cfg_pvox2inf);
             end
         else
             error('...Electrode input is numeric but doesn''t have 3 coordinates');
         end
-    else % electrode coordinates and names to be read from .PIALVOX and .electrodeNames files
+    else % electrode coordinates and names to be read from .DURAL and .electrodeNames files
         if universalYes(eleccoord)
-            display('...Overlaying electrodes. Taking *.PIALVOX from elec_recon folder. Use cfg.eleccord=''n''; if not wanted.');
+            display('...Overlaying electrodes. Taking *.DURAL from elec_recon folder. Use cfg.eleccord=''n''; if not wanted.');
             if strcmpi(side,'L')
-                f=dir([fs_dir '/' subj '/elec_recon/*left.PIALVOX']);
+                f=dir([fs_dir '/' subj '/elec_recon/*left.DURAL']);
                 if isempty(f)
                     error('You need to specify electrode coordinates or have a file that matches: %s\n', ...
-                        [fs_dir '/' subj '/elec_recon/*left.PIALVOX']);
+                        [fs_dir '/' subj '/elec_recon/*left.DURAL']);
                 end
             else
-                f=dir([fs_dir '/' subj '/elec_recon/*right.PIALVOX']);
+                f=dir([fs_dir '/' subj '/elec_recon/*right.DURAL']);
                 if isempty(f)
                     error('You need to specify electrode coordinates or have a file that matches: %s\n', ...
-                        [fs_dir '/' subj '/elec_recon/*right.PIALVOX']);
+                        [fs_dir '/' subj '/elec_recon/*right.DURAL']);
                 end
             end
             if length(f)>1,
-                error('Too many possible PIALVOX files.  I do not know which to use.');
+                error('Too many possible DURAL files.  I do not know which to use.');
             end
             eleccoord=[fs_dir '/' subj '/elec_recon/' f(1).name];
         end
         
-        if exist(eleccoord,'file') && findstr(eleccoord,'VOX')
+        %if exist(eleccoord,'file') && findstr(eleccoord,'VOX')
+        if exist(eleccoord,'file')
             if strcmpi(surftype,'inflated')
                 cfg_pvox2inf=[];
                 cfg_pvox2inf.fsurfsubdir=fs_dir;
                 RAS_coor=pvox2InfBrain(subj,side,cfg_pvox2inf);
             else
-                VOX_coor=dlmread(eleccoord);
-                VOX_coor=VOX_coor(:,2:4);
+                tempCsv=csv2Cell(eleccoord,' ',2);
+                RAS_coor=zeros(size(tempCsv,1),1);
+                for csvLoopA=1:size(tempCsv,1),
+                    for csvLoopB=1:3,
+                        RAS_coor(csvLoopA,csvLoopB)=str2num(tempCsv{csvLoopA,csvLoopB});
+                    end
+                end
             end
             [path, nme, ext]=fileparts(eleccoord);
             if strcmpi(side,'L')
@@ -599,21 +607,13 @@ else
             enames_filename=[fs_dir '/' subj '/elec_recon/' f(1).name];
             fprintf('Attempting to read electrode names from file %s\n', ...
                 enames_filename);
-            fid=fopen(enames_filename,'r');
-            elec_names=textscan(fid,'%s');
-            fclose(fid);
-            elec_names=elec_names{1};
+            elec_names=csv2Cell(enames_filename,' ',1);
             elec_names=format_elec_names(elec_names);
         end
     end
-    if ~strcmpi(surftype,'inflated')
-        %inflated surface coordinates are already converted to RAS
-        RAS_coor=(VOX2RAS*[VOX_coor'; ones(1, size(VOX_coor,1))])';
-    end
-    RAS_coor=RAS_coor(:,1:3);
     
     % exclude depth electrodes
-    if universalYes(ignore_depth_elec),
+    if universalYes(ignoredepthelec),
         c=1; depth_ind=[];
         for i=1:length(elec_names)
             if ~isempty(strfind(lower(elec_names{i}),'depth')) || strcmpi(elec_names{i}(1),'d')
@@ -708,12 +708,15 @@ else
         end
         if isempty(cbar_min),
             % make electrode colormap
-            [eleccolors, elecLimits]=vals2Colormap(eleccolors,type,cmapName);
+            [eleccolors, elecLimits, cmapName]=vals2Colormap(eleccolors,type,cmapName);
             cbar_min=elecLimits(1); 
             cbar_max=elecLimits(2);
         else
-            [eleccolors, elecLimits]=vals2Colormap(eleccolors,type,cmapName,[cbar_min cbar_max]);
+            [eleccolors, elecLimits, cmapName]=vals2Colormap(eleccolors,type,cmapName,[cbar_min cbar_max]);
         end
+    else
+       % DG ?? to do, grab cbar_min and cbar_max from optional inputs when matrix of rgb values passed cbar_min=min(
+       
     end
     if ~isempty(color_elecnames),
         color_elecnames=format_elec_names(color_elecnames);
@@ -874,16 +877,21 @@ end
 %% Colorbar
 h_cbar=[]; % needs to be declared for cfg_out even if colorbar not drawn
 if universalYes(plotcbar)
-    nColors=64; % # of colors in jet colormap
-    h_cbar=cbarDG('vert',[1:nColors],[cbar_min cbar_max],5);
-    
-    if isequal(get(h_fig,'color'),[0 0 0]);
-        %If background of figure is black, make colorbar text white
-        set(h_cbar,'xcolor','w'); % fix so that box isn't white? ??
-        set(h_cbar,'ycolor','w');
-    end
-    if ~isempty(units)
-        ht=title(units); % ?? change size?
+    if isempty(cbar_min) || isempty(cbar_max)
+        fprintf('cbar_min or cbar_max are empty. Cannot draw colorbar.\n');
+    else
+        nColors=64; % # of colors in jet colormap
+        %colormap(cmapName);
+        h_cbar=cbarDG('vert',[1:nColors],[cbar_min cbar_max],5,cmapName);
+        
+        if isequal(get(h_fig,'color'),[0 0 0]);
+            %If background of figure is black, make colorbar text white
+            set(h_cbar,'xcolor','w'); % fix so that box isn't white? ??
+            set(h_cbar,'ycolor','w');
+        end
+        if ~isempty(units)
+            ht=title(units); % ?? change size?
+        end
     end
 end
 
@@ -895,6 +903,7 @@ cfg_out.elecsize=elecsize;
 cfg_out.surftype=surftype;
 cfg_out.h_cbar=h_cbar;
 cfg_out.h_brain=h_ax;
+cfg_out.cmapName=cmapName;
 if exist('cfg','var'), cfg_out.cfg=cfg; end
 if exist('RAS_coor','var'), cfg_out.electrode_coords=RAS_coor; end
 if exist('cbar_min','var'), cfg_out.cbar_limits=[cbar_min cbar_max]; end
@@ -1005,9 +1014,9 @@ end
 set(h_fig,'MenuBar','none','position',[100 190 1000 600],'paperpositionmode','auto');
 
 %% Figure out which hemisphere has electrodes
-f_left=dir([fs_dir '/' subj '/elec_recon/*left.PIALVOX']);
+f_left=dir([fs_dir '/' subj '/elec_recon/*left.DURAL']);
 left_coverage=~isempty(f_left);
-f_right=dir([fs_dir '/' subj '/elec_recon/*right.PIALVOX']);
+f_right=dir([fs_dir '/' subj '/elec_recon/*right.DURAL']);
 right_coverage=~isempty(f_right);
 
 %%
@@ -1121,7 +1130,7 @@ if universalYes(plotcbar),
     map=colormap;
     n_colors=size(map,1);
     n_tick=5;
-    cbarDG(h_cbar,[1:n_colors],used_limits,n_tick);
+    cbarDG(h_cbar,[1:n_colors],used_limits,n_tick,sub_cfg_out.cmapName);
     if ~isempty(units)
         ht=title(units);
         set(ht,'fontsize',12);
@@ -1263,7 +1272,7 @@ if universalYes(plotcbar),
     map=colormap;
     n_colors=size(map,1);
     n_tick=5;
-    cbarDG(h_cbar,1:n_colors,used_limits,n_tick);
+    cbarDG(h_cbar,1:n_colors,used_limits,n_tick,sub_cfg_out.cmapName);
     if ~isempty(units)
         ht=title(units);
         set(ht,'fontsize',12);
