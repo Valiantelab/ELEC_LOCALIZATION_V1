@@ -157,7 +157,8 @@ for elecId=1:nElec,
   
         % Remove string "depth" from electrode label
         formattedLabel=rmSubstring(elecLabels{elecId},'depth',0);
-  
+        formattedLabel=rmChar(formattedLabel,'_');
+        
         if universalYes(fullTitle)
             ht=textsc([formattedLabel '; mgrid coords(' num2str(elecMatrix(elecId,:)-1) '); fsurf coords(' num2str(xyz(elecId,:)) '); ' anatLabel], ...
                 'title');

@@ -60,7 +60,7 @@ ct=0;
 for a=1:length(elecLabels),
     %     if isempty(findstr(lower(elecLabels{a}),'depth'))
     %         %not a depth electrode, find a neighbor
-    id=find(elecLabels{a}=='-');
+    id=find(elecLabels{a}=='_');
     elecstem=elecLabels{a}(1:id-1);
     
     if ~ismember(elecstem,uniStems)
@@ -88,7 +88,7 @@ for fLoop=1:2,
     cfg.eleccolors=elecRgb(find(elecPresent),:);
     cfg.elecnames=elecnames(find(elecPresent));
     cfg.plotcbar='n';
-    cfg.ignore_depth_elec='n';
+    cfg.ignoredepthelec='n';
     cfg.pairs=elecPairs(find(pairPresent),:);
     %cfg.showlabels='y';
     if fLoop==2

@@ -1,6 +1,8 @@
 function [elec_proj,info_cell] = ntools_elec_projection(ini_loc,ini_pos,row,col,sph,...
     subjectpath,scale,radius,range,std_thres,avg_thres)
-
+% function [elec_proj,info_cell] = ntools_elec_projection(ini_loc,ini_pos,row,col,sph,...
+%     subjectpath,scale,radius,range,std_thres,avg_thres)
+%
 % this program project the calculated grid from ntools_elec_interp_grid to
 % the patient's brain lgi outer smoothed surface. 
 % 
@@ -17,9 +19,14 @@ function [elec_proj,info_cell] = ntools_elec_projection(ini_loc,ini_pos,row,col,
 % subjectpath: patient's Freesurfer reconstruction folder
 % radius: supposed distance between each 2 nearest electrodes (mm)
 % range: iteration range
-% std_thres: standard deviation threshold, lower numbers pass (mm)
-% avg_thres: average disatance threshod, the difference of average distance
+% std_thres: standard deviation (of distance to nearest neighbor) threshold, lower numbers pass (mm)
+% avg_thres: average distance to nearest neighbor threshold, the difference of average distance
 %                   and radius must be within the this threshold (mm)
+%
+% Here is how the best projection parameter is chosen:
+%1) if any iterations produce a value less than avg thresh, the minimum is taken and std_thresh is ignored
+%2) if no iteration produces a value less than avg thresh, then if any iterations produce values less than std thresh the iteration with subtresh std and min avg is taken
+%3) If not iteration produces values less than avg thresh or less than std thresh, than you?re supposed to manually an iteration
 %
 % Outputs:
 % elec_proj: cell array contains:
@@ -151,7 +158,7 @@ end
 
 %% second loop
 
-dis_dif = [info_cell{:,2}]-radius;
+dis_dif = [info_cell{:,2}]-radius; %compare avg distance between projected electrode neighbors with true distance
 if ~(all(dis_dif>0) || all(dis_dif<0))
     positive = max(dis_dif,0);
     positive(logical(positive==0)) = nan;
@@ -180,12 +187,46 @@ if ~(all(dis_dif>0) || all(dis_dif<0))
     end
 end
 
+%%
+figure(1); clf;
+subplot(121);
+plot(abs([info_cell{:,2}]-radius),'b-o'); hold on;
+axLimits=axis;
+plot(axLimits(1:2),[1 1]*avg_thres,'k--');
+axLimits=axis;
+if axLimits(3)>(avg_thres*.95),
+    axis([axLimits(1:2) avg_thres*.95 axLimits(4)]);
+elseif axLimits(4)<(std_thres*1.05),
+    axis([axLimits(1:3) avg_thres*1.05]);
+end
+legend('Data','Threshold','location','best');
+xlabel('Iteration');
+ylabel('mm');
+title('Abs(Avg. Dist-True Dist) to Closest Neighbor');
+
+subplot(122);
+plot([info_cell{:,3}],'r-o'); hold on;
+axLimits=axis;
+plot(axLimits(1:2),[1 1]*std_thres,'k--');
+axLimits=axis;
+if axLimits(3)>(std_thres*.95),
+    axis([axLimits(1:2) std_thres*.95 axLimits(4)]);
+elseif axLimits(4)<(std_thres*1.05),
+    axis([axLimits(1:3) std_thres*1.05]);
+end
+legend('Data','Threshold','location','best');
+xlabel('Iteration');
+ylabel('mm');
+set(gca,'yaxislocation','right');
+title('Std. Distance to Closest Neighbor');
+
 %% output judgement
 v = find(abs([info_cell{:,2}]-radius)<=avg_thres);
 if isempty(v)
+    fprintf('no iteration produced locations with nbor distances lower than the current avg threshold...\n');
     vv = find(cell2mat(info_cell(:,3))<=std_thres);
     if isempty(vv)
-        fprintf('no data found lower than the current std threshold,please selec the best one from above \n');
+        fprintf('no iteration produced locations with nbor distances lower than the current std threshold either, please select the best one from above\n');
         no = input('Please input the NO. of the optimal one from above list, type 0 to quit the program : ');
         if no==0
             error('no data match, quiting the program');

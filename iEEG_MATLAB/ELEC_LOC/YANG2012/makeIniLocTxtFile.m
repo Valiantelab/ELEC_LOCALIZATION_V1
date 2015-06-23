@@ -28,10 +28,10 @@ end
 
 %% space delimited from mgrid
 [eCoords, elecLabels, elecRgb, elecPairs, elecPresent]=mgrid2matlab(sub,hem(1));
+eCoords=eCoords-1; % Make coordinates same as in mgrid file (thus first slice has a coordinate of 0, last has a coordinate of 255)
 fprintf('Creating file: %s\n',postimpLocFname);
 fid=fopen(postimpLocFname,'w');
 for a=1:length(elecLabels)
-    %elecLabels{a}=rmChar(elecLabels{a},'-'); % Hugh's electrode localization code no likey (fix later??)
     if ~isempty(findstr('grid',lower(elecLabels{a})))
         elecType='G';
     elseif ~isempty(findstr('depth',lower(elecLabels{a})))
@@ -42,7 +42,5 @@ for a=1:length(elecLabels)
     end
     fprintf(fid,'%s %f %f %f %s\n',elecLabels{a},eCoords(a,1), ...
         eCoords(a,2),eCoords(a,3),elecType);
-    %     fprintf(fid,'%s %d %d %d %s\n',elecLabels{a},round(eCoords(a,1)), ...
-    %         round(eCoords(a,2)),round(eCoords(a,3)),elecType);
 end
 fclose(fid);

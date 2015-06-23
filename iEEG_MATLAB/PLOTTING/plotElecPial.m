@@ -1222,13 +1222,15 @@ for v=1:6, %will run 1-6
     end
     switch v,
         case 1 % lateral
-            ax_loc=[-.05 .52 .55 .45];
+            ax_loc=[-.03 .52 .55 .45];
         case 2 % medial
-            ax_loc=[-.05 .05 .55 .45];
-        case 3 % frontal
-            ax_loc=[.29 .55 .55 .41];
-        case 4 % occiptal
+            ax_loc=[-.03 .05 .55 .45];
+        case 3 % occipital
+            ax_loc=[.305 .55 .55 .41];
+            %ax_loc=[.29 .55 .55 .41];
+        case 4 % frontal
             ax_loc=[.56 .55 .44 .41];
+            %ax_loc=[.56 .55 .44 .41];
         case 5 % superior
             ax_loc=[.41 .05 .54 .23];
         case 6 % inferior

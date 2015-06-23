@@ -61,10 +61,14 @@ fsDir = subPath(1:ii(end));
 
 %% read the inital text file with postimplant electrode coordinates
 % Note coordinates are in voxels (NOT RAS)
-if strcmpi(hem,'lh')
+if strcmpi(hem,'lh') || strcmpi(hem,'l')
+    hem='lh';
     postimpLocFname=sprintf('%s%sPostimpLocLeft.txt',elecReconPath,sub);
-else
+elseif strcmpi(hem,'rh') || strcmpi(hem,'r')
+    hem='rh';
     postimpLocFname=sprintf('%s%sPostimpLocRight.txt',elecReconPath,sub);
+else
+   error('Illegal value of hem argument.'); 
 end
 if ~exist(postimpLocFname,'file')
     error('File %s does NOT exist.',postimpLocFname);
@@ -127,7 +131,7 @@ if strcmpi(ext,'.txt')
     elec_cell = [elec_all{1},num2cell(elec_all{2}),num2cell(elec_all{3}),num2cell(elec_all{4}),elec_all{5}];
     fclose(fid);
 elseif strcmpi(ext,'.xls') || strcmpi(ext,'.xlsx')
-    % I don't think I've tested this to make sure that it works. DG
+    % I haven't tested this to make sure that it works. DG
     [~,~,elec_cell] = xlsread(postimpLocFname);
 end
 
@@ -199,15 +203,17 @@ if nManGrid
         
         % For each grid identify the corners in clockwise or counter clockwise
         % order
-        corners=input(sprintf('Enter the electrode #''s of %s''s corners starting at 1 and going counterclockwise with square brackets (default-> [1 8 64 57])',gridNames{a}));
+        defaultCorners=[1 nCol nCol*nRow nCol*nRow-nCol+1];
+        corners=input(sprintf('Enter the electrode #''s of %s''s corners starting at 1 and going counterclockwise with square brackets (default-> [%d %d %d %d])', ...
+            gridNames{a},defaultCorners(1),defaultCorners(2),defaultCorners(3),defaultCorners(4)));
         if isempty(corners),
-            %corners=[1 8 57 64];
-            corners=[1 8 64 57];
+            %corners=[1 8 64 57];
+            corners=defaultCorners;
         end
         % Select out the corner electrodes to pass to Hugh's function:
         cornerIds=zeros(4,1);
         for b=1:4,
-            cornerIds(b)=findstrInCell([gridNames{1} int2str(corners(b))],elec_gridCT(:,1),1);
+            cornerIds(b)=findstrInCell([gridNames{a} int2str(corners(b))],elec_gridCT(:,1),1);
         end
         
         %radius = input('\nInput the inter-electrode distance (mm) (Press Enter for default distance 10mm) : ');
@@ -216,9 +222,10 @@ if nManGrid
         %end
         radius=10;
         [elec_gridTemp, grid_statsTemp] = ntoolsElecCalcGrid(elec_gridCT(cornerIds,:),subPath,scale,radius,nRow,nCol);
+        
+        % Collect all temp grid coordinates
+        elec_grid=[elec_grid; elec_gridTemp];
     end
-    % Collect all temp grid coordinates
-    elec_grid=[elec_grid; elec_gridTemp];
 end
 %nGrid=size(elec_grid,1); % Right now, all grid elecs must be labeled in CT
 %scan. If we change this so that only corners are labelled. We have to

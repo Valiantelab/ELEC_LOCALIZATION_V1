@@ -12,9 +12,9 @@ function [elecMatrix, elecLabels, elecRgb, elecPairs, elecPresent]=mgrid2matlab(
 %  elecMatrix  - 3D matrix of electrode coordinates. Column 1 is R->L (i.e.,
 %                1 is the right-most plane of voxels). Column 2 is in S->I
 %                (i.e., 1 is the most superior plane of voxels). Column 3 is
-%                A->P (i.e., 1 is the most anterior plane of voxels). Note
-%                that 1 is added to each mgrid coordinate, since
-%                BioimageSuite starts indexing at 0.
+%                A->P (i.e., 1 is the most anterior plane of voxels). NOTE
+%                THAT 1 IS ADDED TO EACH MGRID COORDINATE, since BioimageSuite
+%                starts indexing at 0.
 %  elecLabels  - Cell array of electrode names corresponding to each row of
 %                elecMatrix
 %  elecRgb     - Matrix of RGB colors for each electrode. The nth row of
@@ -114,26 +114,33 @@ while feof(fid) == 0
             % strip electrode
             elecLabels{ct}=[crntLabel '_' num2str(crntCt)];
             tempLabelsCt=tempLabelsCt+1;
-            tempLabels{tempLabelsCt}=elecLabels{ct}; % dash between electrode
+            tempLabels{tempLabelsCt}=elecLabels{ct}; % underscore between electrode
             %name and number
-            %tempLabels{tempLabelsCt}=[crntLabel num2str(crntCt)]; %no dash
+            %tempLabels{tempLabelsCt}=[crntLabel num2str(crntCt)]; %no underscore
         else
             % Grid electrode
             % NOTE, I AM NOT SURE IF THE CODE BELOW WORKS FOR RECTANGULAR
             % GRIDS
             % I think dim=[nRow nColumn]
-            nRow=dim(1);
-            nCol=dim(2);
-            flipCt=(nRow*nCol)-crntCt+1;
-            m=floor((flipCt-1)/nRow);
-            r=(flipCt-1)-m*nRow;
-            gridElecNum=(flipCt-1)+(nRow-1-m)*(nRow+1)-(nCol-r)*(nCol-1)+1;
-            %fprintf('flipCt=%d, elec=%d (mod=%d, rem=%d)\n',flipCt,gridElecNum,m,r);
-            elecLabels{ct}=[crntLabel '_' num2str(gridElecNum)];
-            tempLabelsCt=tempLabelsCt+1;
-            tempLabels{tempLabelsCt}=elecLabels{ct}; % dash between electrode
-            %name and number
-            %tempLabels{tempLabelsCt}=[crntLabel num2str(crntCt)]; %no dash
+            if 1
+                nRow=dim(1);
+                nCol=dim(2);
+                currentCol=ceil((nRow*nCol-crntCt+1)/nRow);
+                currentRow=(nRow*nCol-crntCt+1)-nRow*(currentCol-1);
+                %fprintf('Current Column - Row: %d - %d\n',currentCol,currentRow);
+                gridElecNum=nCol+nCol*(currentRow-1)-currentCol+1;
+                fprintf('Current Column - Row [ElecNum]: %d - %d [ElecNum %d]\n',currentCol,currentRow,gridElecNum);
+                elecLabels{ct}=[crntLabel '_' num2str(gridElecNum)];
+                tempLabelsCt=tempLabelsCt+1;
+                tempLabels{tempLabelsCt}=elecLabels{ct}; % underscore between electrode
+            else
+                % Just count down by one starting at highest numbered
+                % electrode (useful for figuring out the order of
+                % electrodes in the mgrid file)
+                elecLabels{ct}=[crntLabel '_' num2str(crntCt)];
+                tempLabelsCt=tempLabelsCt+1;
+                tempLabels{tempLabelsCt}=[crntLabel num2str(crntCt)]; %no underscore
+            end
         end
         elecRgb(ct,1:3)=crntColor;
         crntCt=crntCt-1;
@@ -162,8 +169,8 @@ while feof(fid) == 0
                     for b=1:(length(gridLines{a,2})-1),
                         nPairs=nPairs+1;
                         elecPairs{nPairs,3}=crntColor;
-                        elecPairs{nPairs,1}=[crntLabel '_' num2str(gridLines{a,2}(b))]; % note the dash
-                        elecPairs{nPairs,2}=[crntLabel '_' num2str(gridLines{a,2}(b+1))]; % note the dash
+                        elecPairs{nPairs,1}=[crntLabel '_' num2str(gridLines{a,2}(b))]; % note the underscore
+                        elecPairs{nPairs,2}=[crntLabel '_' num2str(gridLines{a,2}(b+1))]; % note the underscore
                     end
                 end
             end
@@ -202,8 +209,8 @@ if nStripGrid
             for b=1:(length(gridLines{a,2})-1),
                 nPairs=nPairs+1;
                 elecPairs{nPairs,3}=crntColor;
-                elecPairs{nPairs,1}=[crntLabel '_' num2str(gridLines{a,2}(b))]; % note the dash
-                elecPairs{nPairs,2}=[crntLabel '_' num2str(gridLines{a,2}(b+1))]; % note the dash
+                elecPairs{nPairs,1}=[crntLabel '_' num2str(gridLines{a,2}(b))]; % note the underscore
+                elecPairs{nPairs,2}=[crntLabel '_' num2str(gridLines{a,2}(b+1))]; % note the underscore
             end
         end
     end

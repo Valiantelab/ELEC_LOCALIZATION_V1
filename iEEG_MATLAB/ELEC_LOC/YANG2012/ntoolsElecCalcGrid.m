@@ -1,5 +1,6 @@
-function [out_cell, elec_stats, info_cell]= ntoolsElecCalcGrid(ini_cell, subjectpath,scale,radius,nRow,nCol)
-
+function [out_cell, elec_stats, info_cell]=ntoolsElecCalcGrid(ini_cell,subjectpath,scale,radius,nRow,nCol)
+%function [out_cell, elec_stats, info_cell]=ntoolsElecCalcGrid(ini_cell,subjectpath,scale,radius,nRow,nCol)
+%
 % calculate the grid electrodes with initial locations, ini_cell is a cell
 % array in which first column is the [elec_name number], the rest 3
 % columns are the x y z coordinates
@@ -12,28 +13,8 @@ if isempty(ini_cell)
     return;
 end
 
-
-% get the grid initial positions by name
-%for i = 1:length(name)
-%elec_temp = cell(size(ini_cell));
-%n = regexp(ini_cell(:,1),['^' name{i} '[\d]'],'match'); % # of electrodes in this grid
-% k = 1;
-% for l = 1:length(n)
-%     if ~isempty(n{l})
-%         elec_temp(k,:) = ini_cell(l,:);
-%         k = k+1;
-%     end
-% end
-% elec_temp(all(cellfun(@isempty,elec_temp),2),:) = [];
-% elec_num = regexp(elec_temp(:,1),'[^A-Za-z]*[\d*]','match');
-% elec_num(all(cellfun(@isempty,elec_num),2),:) = [];
-% 
-% for ll = 1:length(elec_num)
-%     ini_pos(ll) = str2double(cell2mat(elec_num{ll})); % electrode #s
-% end
-% ini_loc = cell2mat(elec_temp(:,2:4)); % electrode initial RAS coordinates
-ini_pos=zeros(4,1);
-ini_loc=cell2mat(ini_cell(:,2:4));
+ini_pos=zeros(4,1); % electrode #s
+ini_loc=cell2mat(ini_cell(:,2:4)); % electrode initial RAS coordinates
 for a=1:4,
     tempId=find(ini_cell{a,1}=='_');
     nameStem=ini_cell{a,1}(1:(tempId-1));
@@ -53,7 +34,6 @@ s=[nRow nCol]; % Grid dimensions
 
 % project the grid on the outer-brain surface
 [elec_proj, info_cell]= ntools_elec_projection(ini_loc,ini_pos,s(1),s(2),sph,subjectpath,scale,radius);
-%elec_temp2.(char(name{i})) = elec_proj{1,5};
 elec_stats = elec_proj(1,1:4);
 
 % I think info_cell is just elec_proj at each iteration and elec_proj is
