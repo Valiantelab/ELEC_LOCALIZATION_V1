@@ -2,7 +2,7 @@
 %              text file as a 2D cell array, csv_matrix.  
 %
 % Usage:
-%  >> csv_matrix=csv2cell(csv_fname,delimiter,header_lines);
+%  >> csv_matrix=csv2Cell(csv_fname,delimiter,header_lines);
 %
 % Required Input:
 %   csv_fname - The name of the text file to import.  If a path is not
@@ -30,7 +30,7 @@
 %  >> fid=fopen('demo.csv','w');
 %  >> for a=1:5, for b=1:3, fprintf(fid,'%d,',demo_dat(a,b)); end; fprintf(fid,'\n'); end;
 %  >> fclose(fid);
-%  >> csv_matrix=csv2cell('demo.csv',',');
+%  >> csv_matrix=csv2Cell('demo.csv',',');
 %
 % Author: 
 %  David Groppe
@@ -42,7 +42,7 @@
 function csv_matrix=csv2Cell(csv_fname,delimiter,header_lines)
 
 if nargin<1,
-    help csv2cell
+    help csv2Cell
 end
 
 if nargin<2,

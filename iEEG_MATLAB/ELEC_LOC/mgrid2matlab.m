@@ -110,7 +110,7 @@ while feof(fid) == 0
         line = fgetl(fid);
         ct=ct+1; % # of electrodes
         elecMatrix=[elecMatrix; str2num(line)];
-        if dim(1)==1
+        if dim(1)==1 || dim(2)==1
             % strip electrode
             elecLabels{ct}=[crntLabel '_' num2str(crntCt)];
             tempLabelsCt=tempLabelsCt+1;
@@ -119,9 +119,6 @@ while feof(fid) == 0
             %tempLabels{tempLabelsCt}=[crntLabel num2str(crntCt)]; %no underscore
         else
             % Grid electrode
-            % NOTE, I AM NOT SURE IF THE CODE BELOW WORKS FOR RECTANGULAR
-            % GRIDS
-            % I think dim=[nRow nColumn]
             if 1
                 nRow=dim(1);
                 nCol=dim(2);
@@ -154,7 +151,7 @@ while feof(fid) == 0
         
         %If this is not the first strip/grid, compute electrode pairs
         if nStripGrid
-            if dim(1)==1
+            if dim(1)==1 || dim(2)==1
                 % strip electrode
                 for a=1:(dim(2)-1),
                     nPairs=nPairs+1;
@@ -194,7 +191,7 @@ elecMatrix=elecMatrix+1; % BioImageSuite indexes the first voxel as [0 0 0]
 
 % Compute electrode pairs for final stip/grid
 if nStripGrid
-    if dim(1)==1
+    if dim(1)==1 || dim(2)==1
         % strip electrode
         for a=1:(dim(2)-1),
             nPairs=nPairs+1;

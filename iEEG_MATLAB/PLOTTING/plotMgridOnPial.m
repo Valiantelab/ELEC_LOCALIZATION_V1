@@ -89,13 +89,14 @@ for fLoop=1:2,
     cfg.elecnames=elecnames(find(elecPresent));
     cfg.plotcbar='n';
     cfg.ignoredepthelec='n';
+    cfg.title=fsub;
+    %cfg.title=[];
     cfg.pairs=elecPairs(find(pairPresent),:);
     %cfg.showlabels='y';
     if fLoop==2
         cfg.overlay_parcellation='DK';
     end
     %cfg.rotate3d='n';
-    cfg.title=[];
     cfg_out=plotElecPial(fsub,cfg);
     
     % Add electrode legend
