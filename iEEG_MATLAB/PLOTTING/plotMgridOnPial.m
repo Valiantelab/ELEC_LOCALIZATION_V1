@@ -48,8 +48,8 @@ pairPresent=zeros(size(elecPairs,1),1);
 for a=1:size(elecPairs,1),
    elecPairs{a,1}=rmChar(elecPairs{a,1},'-');
    elecPairs{a,2}=rmChar(elecPairs{a,2},'-');
-   elecId1=findstr_in_cell(elecPairs{a,1},elecnames,1);
-   elecId2=findstr_in_cell(elecPairs{a,2},elecnames,1);
+   elecId1=findstrInCell(elecPairs{a,1},elecnames,1);
+   elecId2=findstrInCell(elecPairs{a,2},elecnames,1);
    pairPresent(a)=elecPresent(elecId1)*elecPresent(elecId2);
 end
 
@@ -118,8 +118,17 @@ for fLoop=1:2,
         else
             figFname=sprintf('%s%sMgridElecDK',fsub,hem);
         end
-        fsubDir=getenv('SUBJECTS_DIR');
-        print(fLoop,[fsubDir '/' fsub '/elec_recon/' figFname],'-djpeg');
+        global global_fs_dir;
+        if ~isempty(global_fs_dir)
+            fsDir=global_fs_dir;
+        else
+            if ispc,
+                error('Hey mon, if you be using Windows you need to be specifying global variable global_fs_dir.');
+            else
+                fsDir=getenv('SUBJECTS_DIR');
+            end
+        end
+        print(fLoop,[fsDir '/' fsub '/elec_recon/' figFname],'-djpeg');
     end
 end
 

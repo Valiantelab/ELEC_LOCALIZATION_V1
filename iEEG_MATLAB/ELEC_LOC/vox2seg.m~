@@ -32,20 +32,20 @@ else
         fsdir=getenv('SUBJECTS_DIR');
     end
 end
-%asegFname=[fsdir '/' fsSub '/mri/aseg.mgz'];
-asegFname=[fsdir '/' fsSub '/mri/aparc+aseg.mgz'];
-%asegFname=[fsdir '/' fsSub '/mri/aparc.a2009s+aseg.mgz'];
 if ~exist(asegFname,'file')
    error('File %s not found.',asegFname); 
 end
+%asegFname=[fsdir '/' fsSub '/mri/aseg.mgz'];
+asegFname=[fsdir '/' fsSub '/mri/aparc+aseg.mgz'];
+%asegFname=[fsdir '/' fsSub '/mri/aparc.a2009s+aseg.mgz'];
 
 aseg=MRIread(asegFname);
 
 %% Load table
 pathstr = fileparts(which('mgrid2matlab'));
 inFile=[pathstr '/FreeSurferColorLUTnoFormat.txt'];
-if ~exist(inFile,'file')
-    error('Could not find file %s',inFile);
+if exist(inFile,'file')
+    
 end
 fid=fopen(inFile,'r');
 %fid=fopen('/Applications/freesurfer/FreeSurferColorLUTnoFormat.txt','r');
