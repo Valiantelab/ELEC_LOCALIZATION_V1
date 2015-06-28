@@ -26,21 +26,6 @@ function plotMgridOnPial(fsub,hem,printEm)
 % May 2015-Now electrode pairs are derived directly from mgrid file and
 % disabled electrodes are not shown.
 
-global global_fs_dir;
-if ~isempty(global_fs_dir)
-    fsubDir=global_fs_dir;
-else
-    if ispc,
-        error('Hey mon, if you be using Windows you need to be specifying the fsurfsubdir input argument.');
-    else
-        fsubDir=getenv('SUBJECTS_DIR');
-    end
-end
-
-if nargin<3,
-   printEm=0; 
-end
-
 if nargin<4
     gridStems=[];
 elseif ~iscell(gridStems)
@@ -133,7 +118,17 @@ for fLoop=1:2,
         else
             figFname=sprintf('%s%sMgridElecDK',fsub,hem);
         end
-        print(fLoop,[fsubDir '/' fsub '/elec_recon/' figFname],'-djpeg');
+        global global_fs_dir;
+        if ~isempty(global_fs_dir)
+            fsDir=global_fs_dir;
+        else
+            if ispc,
+                error('Hey mon, if you be using Windows you need to be specifying global variable global_fs_dir.');
+            else
+                fsDir=getenv('SUBJECTS_DIR');
+            end
+        end
+        print(fLoop,[fsDir '/' fsub '/elec_recon/' figFname],'-djpeg');
     end
 end
 

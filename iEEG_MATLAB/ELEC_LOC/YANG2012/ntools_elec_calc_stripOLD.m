@@ -13,27 +13,35 @@ strip = cell2mat(ini_cell(:,2:4));
 if strcmp(sph,'both')
     surf_lh = fs_read_surf([subjectpath '/surf/lh.pial-outer-smoothed']);
     if ~isfield(surf_lh,'coords')
-        surf_lh.coords = surf_lh.vertices;
+        if isfield(surf_lh,'coord')
+            surf_lh.coords = surf_lh.coord;
+        else
+            surf_lh.coords = surf_lh.vertices;
+        end
     end
     surf_rh = fs_read_surf([subjectpath '/surf/rh.pial-outer-smoothed']);
     if ~isfield(surf_rh,'coords')
-        surf_rh.coords = surf_rh.vertices;
-    end    
+        if isfield(surf_rh,'coord')
+            surf_rh.coords = surf_rh.coord;
+        else
+            surf_rh.coords = surf_rh.vertices;
+        end
+    end
     surf = [surf_lh.coords;surf_rh.coords];
 else
     surf_h = fs_read_surf([subjectpath '/surf/',sph,'.pial-outer-smoothed']);
     if ~isfield(surf_h,'coords')
         if isfield(surf_h,'coord')
-            % Apparentlly this varies with version of freesurfer
-            surf_h.coords=surf_h.coord;
+            surf_h.coords = surf_h.coord;
         else
             surf_h.coords = surf_h.vertices;
         end
     end
     surf = surf_h.coords;
 end
-if size(surf,1)==3,
-    surf=surf'; % Apparently this varies with freesurfer version
+if size(surf,1)==3
+    % Apparently this varies depending on your version of freesurfer
+    surf=surf';
 end
 k = dsearchn(surf,strip);
 data = surf(k,:);
