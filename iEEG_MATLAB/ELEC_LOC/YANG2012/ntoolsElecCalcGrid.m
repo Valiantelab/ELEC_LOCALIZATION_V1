@@ -1,5 +1,5 @@
-function [out_cell, elec_stats, info_cell]=ntoolsElecCalcGrid(ini_cell,subjectpath,scale,radius,nRow,nCol)
-%function [out_cell, elec_stats, info_cell]=ntoolsElecCalcGrid(ini_cell,subjectpath,scale,radius,nRow,nCol)
+function [out_cell, elec_stats, info_cell]=ntoolsElecCalcGrid(ini_cell,subjectpath,scale,radius,nRow,nCol,sph)
+%function [out_cell, elec_stats, info_cell]=ntoolsElecCalcGrid(ini_cell,subjectpath,scale,radius,nRow,nCol,sph)
 %
 % calculate the grid electrodes with initial locations, ini_cell is a cell
 % array in which first column is the [elec_name number], the rest 3
@@ -21,14 +21,17 @@ for a=1:4,
     ini_pos(a)=str2num(ini_cell{a,1}(tempId+1:end));
 end
 
+% This was part of the original code from Hugh, but it failed on a patient
+% with a grid that medial-orbitofrontal as well as lateral frontal
+% coverage. I add sph as an argument instead
 % determine the hemisphere that grid locates
-if ini_loc(:,1)>0
-    sph = 'rh';
-elseif ini_loc(:,1)<0
-    sph = 'lh';
-else
-    error('wrong initial positions for grid');
-end
+% if ini_loc(:,1)>0
+%     sph = 'rh';
+% elseif ini_loc(:,1)<0
+%     sph = 'lh';
+% else
+%     error('wrong initial positions for grid');
+% end
 
 s=[nRow nCol]; % Grid dimensions
 

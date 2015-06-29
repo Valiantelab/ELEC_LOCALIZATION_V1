@@ -221,7 +221,7 @@ if nManGrid
         %    radius = 10;
         %end
         radius=10;
-        [elec_gridTemp, grid_statsTemp] = ntoolsElecCalcGrid(elec_gridCT(cornerIds,:),subPath,scale,radius,nRow,nCol);
+        [elec_gridTemp, grid_statsTemp] = ntoolsElecCalcGrid(elec_gridCT(cornerIds,:),subPath,scale,radius,nRow,nCol,hem);
         
         % Collect all temp grid coordinates
         elec_grid=[elec_grid; elec_gridTemp];

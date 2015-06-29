@@ -126,7 +126,7 @@ while feof(fid) == 0
                 currentRow=(nRow*nCol-crntCt+1)-nRow*(currentCol-1);
                 %fprintf('Current Column - Row: %d - %d\n',currentCol,currentRow);
                 gridElecNum=nCol+nCol*(currentRow-1)-currentCol+1;
-                fprintf('Current Column - Row [ElecNum]: %d - %d [ElecNum %d]\n',currentCol,currentRow,gridElecNum);
+                %fprintf('Current Column - Row [ElecNum]: %d - %d [ElecNum %d]\n',currentCol,currentRow,gridElecNum);
                 elecLabels{ct}=[crntLabel '_' num2str(gridElecNum)];
                 tempLabelsCt=tempLabelsCt+1;
                 tempLabels{tempLabelsCt}=elecLabels{ct}; % underscore between electrode

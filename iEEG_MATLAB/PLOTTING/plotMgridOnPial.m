@@ -26,6 +26,7 @@ function plotMgridOnPial(fsub,hem,printEm)
 % May 2015-Now electrode pairs are derived directly from mgrid file and
 % disabled electrodes are not shown.
 
+<<<<<<< Updated upstream
 global global_fs_dir;
 if ~isempty(global_fs_dir)
     fsubDir=global_fs_dir;
@@ -39,6 +40,10 @@ end
 
 if nargin<3,
    printEm=0; 
+=======
+if nargin<3,
+   printEm=0;    
+>>>>>>> Stashed changes
 end
 
 if nargin<4
