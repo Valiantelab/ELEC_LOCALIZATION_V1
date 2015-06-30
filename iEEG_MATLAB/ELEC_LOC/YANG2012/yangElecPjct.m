@@ -1,6 +1,6 @@
 function yangElecPjct(sub,hem)
 %function yangElecPjct(sub,hem)
-% 
+%
 % Corrects intracranial electrode locations for brain shift using the
 % following method:
 %
@@ -18,7 +18,7 @@ function yangElecPjct(sub,hem)
 %    *_hem.electrodeNames - electrode names
 %    localization_process_date.log - Record of command line output produced
 %                                    when this function is run
-% 
+%
 % In the above, *=Freesurfer subject name, hem='left' or 'right', and
 % date=the date on which those files were generated
 %
@@ -68,7 +68,7 @@ elseif strcmpi(hem,'rh') || strcmpi(hem,'r')
     hem='rh';
     postimpLocFname=sprintf('%s%sPostimpLocRight.txt',elecReconPath,sub);
 else
-   error('Illegal value of hem argument.'); 
+    error('Illegal value of hem argument.');
 end
 if ~exist(postimpLocFname,'file')
     error('File %s does NOT exist.',postimpLocFname);
@@ -103,7 +103,7 @@ if 0 % Not clear if this necessary
 end
 
 % start diary
-diary_file = [elecReconPath 'localization_process_',datestr(now,29),'.log'];
+diary_file = [elecReconPath 'localization_process_' datestr(now,29) hem '.log'];
 fprintf('Recording command line output in file: \n%s\n',diary_file);
 diary on;
 diary(diary_file)
@@ -152,19 +152,19 @@ fprintf('%d Strip electrodes manually marked\n',nStrip);
 % Convert all coordinates to RAS
 postimpVox=zeros(nManElec,3);
 for a=1:nManElec,
-   for b=1:3,
-      postimpVox(a,b)=elec_cell{a,b+1};
-   end
+    for b=1:3,
+        postimpVox(a,b)=elec_cell{a,b+1};
+    end
 end
 VOX2RAS=[-1 0 0 128; 0 0 -1 128; 0 -1 0 128; 0 0 0 1];
 postimpRas=(VOX2RAS*[postimpVox'; ones(1, nManElec)])';
 %fprintf('RAS coordinates:\n');
 for a=1:nManElec,
-   for b=1:3,
-      elec_cell{a,b+1}=postimpRas(a,b); 
-   end
-   %fprintf('%s: %.2f %.2f %.2f\n',elec_cell{a,1},elec_cell{a,2}, ...
-   %    elec_cell{a,3},elec_cell{a,4});
+    for b=1:3,
+        elec_cell{a,b+1}=postimpRas(a,b);
+    end
+    %fprintf('%s: %.2f %.2f %.2f\n',elec_cell{a,1},elec_cell{a,2}, ...
+    %    elec_cell{a,3},elec_cell{a,4});
 end
 elec_depth=elec_cell(d,:);
 elec_depthCT=elec_depth;
@@ -194,7 +194,7 @@ if nManGrid
         % For each grid identify the dimensions
         nRow=input(sprintf('How many rows does %s have? (default-> 8): ',gridNames{a}));
         if isempty(nRow),
-           nRow=8; 
+            nRow=8;
         end
         nCol=input(sprintf('How many columns does %s have? (default-> 8): ',gridNames{a}));
         if isempty(nCol),
@@ -229,7 +229,7 @@ if nManGrid
 end
 %nGrid=size(elec_grid,1); % Right now, all grid elecs must be labeled in CT
 %scan. If we change this so that only corners are labelled. We have to
-%recount the number of grid elecs here. DG 
+%recount the number of grid elecs here. DG
 nElec=nDepth+nGrid+nStrip;
 
 % calculate depth elecs
@@ -316,7 +316,7 @@ fid=fopen(fnameDuralRAS,'w');
 fprintf(fid,'%s\n',datestr(now));
 fprintf(fid,'R A S\n');
 for a=1:nElec,
-   fprintf(fid,'%f %f %f\n',duralRAS(a,1),duralRAS(a,2),duralRAS(a,3)); 
+    fprintf(fid,'%f %f %f\n',duralRAS(a,1),duralRAS(a,2),duralRAS(a,3));
 end
 fclose(fid);
 
@@ -327,7 +327,7 @@ fid=fopen(fnamePialRAS,'w');
 fprintf(fid,'%s\n',datestr(now));
 fprintf(fid,'R A S\n');
 for a=1:nElec,
-   fprintf(fid,'%f %f %f\n',pialRAS(a,1),pialRAS(a,2),pialRAS(a,3)); 
+    fprintf(fid,'%f %f %f\n',pialRAS(a,1),pialRAS(a,2),pialRAS(a,3));
 end
 fclose(fid);
 
@@ -338,7 +338,7 @@ fid=fopen(fnameCtRAS,'w');
 fprintf(fid,'%s\n',datestr(now));
 fprintf(fid,'R A S\n');
 for a=1:nElec,
-   fprintf(fid,'%f %f %f\n',ctRAS(a,1),ctRAS(a,2),ctRAS(a,3)); 
+    fprintf(fid,'%f %f %f\n',ctRAS(a,1),ctRAS(a,2),ctRAS(a,3));
 end
 fclose(fid);
 
@@ -348,7 +348,7 @@ fprintf('Saving electrode labels to: %s\n',fnameLabels);
 fid=fopen(fnameLabels,'w');
 fprintf(fid,'%s\n',datestr(now));
 for a=1:nElec,
-   fprintf(fid,'%s\n',elecNames{a}); 
+    fprintf(fid,'%s\n',elecNames{a});
 end
 fclose(fid);
 
@@ -395,90 +395,8 @@ end
 
 
 %% Plot results to double check
-shiftDist=sqrt( sum( (duralRAS-ctRAS).^2,2)); %units are mm
+plotCtVsDural(duralRAS,ctRAS,elecNames,sub,hem,subPath,1,1);
 
-%rgb=zeros(nElec,3);
-rgb=vals2Colormap(shiftDist,'justpos');
-h_fig=figure;
-%set(h_fig,'position',[104 285 1114 410]);
-subplot(121);
-plot(shiftDist,'.-'); hold on;
-last_type=[];
-marker='o';
-non_depth=ones(1,length(shiftDist));
-for a=1:length(shiftDist),
-    if ~isempty(findstr('depth',elecNames{a}))
-        non_depth(a)=0;
-        marker='s';
-    else
-        marker='o';
-    end
-   %    ids=find(elecNames{a}=='_');
-   %    this_type=elecNames{a}(1:(ids(1)-1));
-   %    if ~strcmpi(this_type,last_type)
-   %        last_type=this_type;
-   %        if marker=='o';
-   %            marker='s';
-   %        else
-   %            marker='o';
-   %        end
-   %    end
-   h=plot(a,shiftDist(a),marker);
-   set(h,'color',rgb(a,:));
-   clickText(h,[num2str(a) ': ' rmChar(elecNames{a},'_')]);
-   %clickText(h,[num2str(a) ': ' rm_substring(elecNames{a},'_')]);
-   xlabel('Channel');
-   ylabel('Snapped vs. Nonsnapped Distance (mm)');
-end
-non_depth_ids=find(non_depth);
-title(sprintf('%s Median=%.1f, SIQR=%.1f (depths ignored)',sub,median(shiftDist(non_depth_ids)), ...
-   iqr(shiftDist(non_depth_ids))/2));
-v=axis;
-axis([1 length(shiftDist) v(3:4)]);
-
-%3D plot of and pre vs. post shift correction locations
-subplot(122);
-for a=1:length(shiftDist),
-    h=plot3(duralRAS(a,1),duralRAS(a,2),duralRAS(a,3),'r.'); hold on;
-    clickText(h,rmChar(elecNames{a},'_'));
-    h=plot3(ctRAS(a,1),ctRAS(a,2),ctRAS(a,3),'bo');
-    %clickText(h,rm_substring(labels{a},'_'));
-    clickText(h,rmChar(elecNames{a},'_'));
-    plot3([duralRAS(a,1) ctRAS(a,1)],[duralRAS(a,2) ctRAS(a,2)],[duralRAS(a,3) ctRAS(a,3)],'k-');
-end
-if hem(1)=='r',
-    %view(90,0);
-    view([100 16]);
-else
-    %view(270,0);
-    view([-76 12]);
-end
-axis tight;
-axis square;
-title('Red=Postcorrection, Blue=Precorrection');
-xlabel('Left- Right+');
-ylabel('Pos- Ant+');
-zlabel('Inf- Sup+');
-
-outFigFname=sprintf('%s/elec_recon/%s_%sShiftDist.jpg',subPath,sub,longHem);
-print(gcf,'-djpeg',outFigFname);
-outFigFname=sprintf('%s/elec_recon/%s_%sShiftDist',subPath,sub,longHem);
-savefig(outFigFname);
-
-%%
-cfg=[];
-cfg.view=[hem(1) 'omni'];
-cfg.rotate3d='n';
-cfg.eleccolors=shiftDist;
-cfg.colorscale='justpos';
-cfg.units='mm';
-cfg.elecnames=elecNames;
-%cfg.showlabels='y';
-cfg.title=sprintf('%s: CT to Dural distance',sub);
-cfg_out=plotElecPial(sub,cfg);
-
-outFigFname=sprintf('%s/elec_recon/%s_%sShiftDistOnBrain.jpg',subPath,sub,longHem);
-print(gcf,'-djpeg',outFigFname);
 
 % close diary
 fprintf('\nElectrodes Localization finished for %s',sub);

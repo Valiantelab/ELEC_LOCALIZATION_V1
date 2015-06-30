@@ -1,4 +1,5 @@
 function [elec, data] = ntools_elec_calc_strip(ini_cell,subjectpath,sph)
+%function [elec, data] = ntools_elec_calc_strip(ini_cell,subjectpath,sph)
 
 % find the strip electrodes on the outer brain surface using nearest points
 

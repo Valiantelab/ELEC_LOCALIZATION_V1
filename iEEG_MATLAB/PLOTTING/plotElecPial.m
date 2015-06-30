@@ -1127,6 +1127,7 @@ end
 if universalYes(plotcbar),
     % Colorbar
     h_cbar=axes('position',[.4 .06 .2 .03]);
+    colormap(sub_cfg_out.cmapName);
     map=colormap;
     n_colors=size(map,1);
     n_tick=5;
@@ -1271,6 +1272,7 @@ end
 %% Colorbar
 if universalYes(plotcbar),
     h_cbar=axes('position',[.90 .1 .03 .8]);
+    colormap(sub_cfg_out.cmapName);
     map=colormap;
     n_colors=size(map,1);
     n_tick=5;
