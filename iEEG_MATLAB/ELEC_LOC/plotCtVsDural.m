@@ -105,10 +105,10 @@ if universalYes(plotPial)
             error('Invalid value for "hem" argument.');
         end
         outFigFname=sprintf('%s/elec_recon/%s_%sShiftDist.jpg',subPath,sub,longHem);
-        print(gcf,'-djpeg',outFigFname);
+        print(figH(1),'-djpeg',outFigFname);
         outFigFname=sprintf('%s/elec_recon/%s_%sShiftDist',subPath,sub,longHem);
-        savefig(outFigFname);
+        savefig(figH(1),outFigFname);
         outFigFname=sprintf('%s/elec_recon/%s_%sShiftDistOnBrain.jpg',subPath,sub,longHem);
-        print(gcf,'-djpeg',outFigFname);
+        print(figH(2),'-djpeg',outFigFname);
     end
 end
