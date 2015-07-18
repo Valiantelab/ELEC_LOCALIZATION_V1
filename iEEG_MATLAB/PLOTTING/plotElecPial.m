@@ -1147,7 +1147,7 @@ end
 if isfield(cfg,'title')
     if ~isempty(cfg.title)
         % Overall Fig Title
-        ht=textsc(cfg.title,'title');
+        ht=textsc2014(cfg.title,'title');
         set(ht,'fontweight','bold','fontsize',20,'position',[0.5 0.975]);
     end
 end
@@ -1293,7 +1293,7 @@ end
 if isfield(cfg,'title')
     if ~isempty(cfg.title)
         % Overall Fig Title
-        ht=textsc(cfg.title,'title');
+        ht=textsc2014(cfg.title,'title');
         set(ht,'fontweight','bold','fontsize',20,'position',[0.5 0.975]);
     end
 end

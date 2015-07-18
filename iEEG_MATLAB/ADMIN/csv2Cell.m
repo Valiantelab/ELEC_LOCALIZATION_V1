@@ -25,12 +25,19 @@
 % Note, be sure not to use the delimiting character in the text file as 
 % anything but a cell boundary marker.
 %
-% Example:
+% Example (comma delimited):
 %  >> demo_dat=round(rand(5,3)*10);
 %  >> fid=fopen('demo.csv','w');
 %  >> for a=1:5, for b=1:3, fprintf(fid,'%d,',demo_dat(a,b)); end; fprintf(fid,'\n'); end;
 %  >> fclose(fid);
 %  >> csv_matrix=csv2Cell('demo.csv',',');
+%
+% Example (tab delimited):
+%  >> demo_dat=round(rand(5,3)*10);
+%  >> fid=fopen('demo.csv','w');
+%  >> for a=1:5, for b=1:3, fprintf(fid,'%d\t',demo_dat(a,b)); end; fprintf(fid,'\n'); end;
+%  >> fclose(fid);
+%  >> csv_matrix=csv2Cell('demo.csv',9);
 %
 % Author: 
 %  David Groppe
@@ -48,10 +55,10 @@ end
 if nargin<2,
     delimiter=',';
 else
-    if ~ischar(delimiter)
-        error('Specified delimiter needs to be a character.');
-    elseif length(delimiter)>1
+    if length(delimiter)>1
         error('Delimiter needs to be a single character.');
+    elseif (delimiter<0) || (delimiter>127)
+        error('Specified delimiter needs to be a character.');
     end
 end
 

@@ -173,11 +173,11 @@ for elecId=1:nElec,
         formattedLabel=rmChar(formattedLabel,'_');
         
         if universalYes(fullTitle)
-            ht=textsc([formattedLabel '; mgrid coords(' num2str(elecMatrix(elecId,:)-1) '); fsurf coords(' num2str(xyz(elecId,:)) '); ' anatLabel], ...
+            ht=textsc2014([formattedLabel '; mgrid coords(' num2str(elecMatrix(elecId,:)-1) '); fsurf coords(' num2str(xyz(elecId,:)) '); ' anatLabel], ...
                 'title');
             set(ht,'fontsize',14,'fontweight','bold');
         else
-            ht=textsc([formattedLabel '; Anatomical Location: ' anatLabel], ...
+            ht=textsc2014([formattedLabel '; Anatomical Location: ' anatLabel], ...
                 'title');
             set(ht,'fontsize',16,'fontweight','bold');
         end
