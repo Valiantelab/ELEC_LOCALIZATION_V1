@@ -651,17 +651,30 @@ else
     
     % Plot lines joining electrodes
     if ~isempty(electrode_pairs),
+        % Remove all electrode pairs not on this hemisphere
+        nPairs=length(electrode_pairs);
+        usePairs=zeros(nPairs,1);
+        for pairLoop=1:nPairs,
+            if strcmpi(electrode_pairs{pairLoop,4},side)
+               usePairs(pairLoop)=1; 
+            end
+        end
+        electrode_pairs=electrode_pairs(find(usePairs),:);
+        clear usePairs nPairs
+        
         electrode_pairs(:,1)=format_elec_names(electrode_pairs(:,1));
         electrode_pairs(:,2)=format_elec_names(electrode_pairs(:,2));
         if isempty(linewidth)
             linewidth=elecsize/3;
         end
-        if size(electrode_pairs,2)<=4
-            electrode_pairs(:,5) ={linewidth};
-        elseif size(electrode_pairs,2)>4
+        if size(electrode_pairs,2)<=5
+            electrode_pairs(:,6) ={linewidth};
+        elseif size(electrode_pairs,2)>5
             % normalize linewidth
-            electrode_pairs(:,5) = cellfun(@rdivide,electrode_pairs(:,5),num2cell(repmat(max([electrode_pairs{:,5}]), [size(electrode_pairs,1) 1])),'UniformOutput',false);
-            electrode_pairs(:,5) = cellfun(@times,electrode_pairs(:,5),num2cell(repmat(linewidth, [size(electrode_pairs,1) 1])),'UniformOutput',false);
+            electrode_pairs(:,6) = cellfun(@rdivide,electrode_pairs(:,6), ...
+                num2cell(repmat(max([electrode_pairs{:,6}]), [size(electrode_pairs,1) 1])),'UniformOutput',false);
+            electrode_pairs(:,6) = cellfun(@times,electrode_pairs(:,6), ...
+                num2cell(repmat(linewidth, [size(electrode_pairs,1) 1])),'UniformOutput',false);
         end
         
         n_pairs=size(electrode_pairs,1);
@@ -682,8 +695,8 @@ else
                 set(hl,'color',str2num(electrode_pairs{a,3}),'linewidth',linewidth);
             end
             
-            if size(electrode_pairs,2)>3
-                clickText3D(hl,[electrode_pairs{a,1} '-' electrode_pairs{a,2} ': ' electrode_pairs{a,4}],2);
+            if size(electrode_pairs,2)>4 && ~isempty(electrode_pairs{a,5})
+                clickText3D(hl,[electrode_pairs{a,1} '-' electrode_pairs{a,2} ': ' electrode_pairs{a,5}],2);
             else
                 clickText3D(hl,[electrode_pairs{a,1} '-' electrode_pairs{a,2}],2);
             end
@@ -1020,7 +1033,11 @@ f_right=dir([fs_dir '/' subj '/elec_recon/*right.DURAL']);
 right_coverage=~isempty(f_right);
 
 %%
-used_limits=[];
+if isnumeric(colorscale)
+    used_limits=colorscale;
+else
+    used_limits=[];
+end
 for h=1:2,
     for v=1:6, %will run 1-6
         ax_loc=[0 0 0 0];
@@ -1114,11 +1131,13 @@ for h=1:2,
                 used_limits=sub_cfg_out.cbar_limits;
             end
         else
-            if used_limits(2)<sub_cfg_out.cbar_limits(2)
-                used_limits(2)=sub_cfg_out.cbar_limits(2);
-            end
-            if used_limits(1)>sub_cfg_out.cbar_limits(1)
-                used_limits(1)=sub_cfg_out.cbar_limits(1);
+            if ~isempty(sub_cfg_out.cbar_limits)
+                if used_limits(2)<sub_cfg_out.cbar_limits(2)
+                    used_limits(2)=sub_cfg_out.cbar_limits(2);
+                end
+                if used_limits(1)>sub_cfg_out.cbar_limits(1)
+                    used_limits(1)=sub_cfg_out.cbar_limits(1);
+                end
             end
         end
     end
@@ -1127,7 +1146,11 @@ end
 if universalYes(plotcbar),
     % Colorbar
     h_cbar=axes('position',[.4 .06 .2 .03]);
-    colormap(sub_cfg_out.cmapName);
+    if isempty(sub_cfg_out.cmapName)
+        colormap('parula');
+    else
+        colormap(sub_cfg_out.cmapName);
+    end
     map=colormap;
     n_colors=size(map,1);
     n_tick=5;
