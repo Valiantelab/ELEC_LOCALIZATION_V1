@@ -18,6 +18,8 @@ function [map, limits, cmap]=vals2Colormap(vals,type,cmap,minmax)
 % Author: David Groppe
 % Mehtalab 2012
 %
+% Future work: get rid of minmax argument. I think it's only useful when
+% type is justpos or justneg.
 
 % History:
 % 2015-4: Made compatible with Matlab 2014's parula cmap: DG
@@ -80,7 +82,7 @@ elseif strcmpi(type,'absmax')
     %absmax color scaling
     if verLessThan('matlab','8.0.1')
         rgb_vals=colormap('jet');
-        %load jet_cmap %I did this in the past instead of calling colormap.
+        %load jet_cmap. I did this in the past instead of calling colormap.
         %I don't remember why.
     else
         rgb_vals=colormap('parula');

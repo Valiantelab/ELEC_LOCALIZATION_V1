@@ -43,7 +43,7 @@ function plotMgridOnSlices(fsSub,mgridFname,cfg)
 % Add option for fsurf anatomy colors?
 
 if ~isfield(cfg,'fullTitle'),    fullTitle=0;          else fullTitle=cfg.fullTitle; end
-if ~isfield(cfg,'cntrst'),    cntrst=.5;          else cntrst=cfg.clearglobal; end
+if ~isfield(cfg,'cntrst'),    cntrst=.5;          else cntrst=cfg.cntrst; end
 if ~isfield(cfg,'pauseOn'),    pauseOn=0;          else pauseOn=cfg.pauseOn; end
 if ~isfield(cfg,'printFigs'),    printFigs=0;          else printFigs=cfg.printFigs; end
 if ~isfield(cfg,'depthsOnly'),    depthsOnly=1;          else depthsOnly=cfg.depthsOnly; end

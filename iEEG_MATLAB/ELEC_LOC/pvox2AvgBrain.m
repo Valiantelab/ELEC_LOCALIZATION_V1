@@ -51,6 +51,7 @@ if  ~isfield(cfg,'eleccoord'),      eleccoord = []; else    eleccoord = cfg.elec
 if  ~isfield(cfg,'elecnames'),      elecnames = []; else    elecnames = cfg.elecnames;      end
 if  ~isfield(cfg,'fsurfsubdir'),    fs_dir = [];    else    fs_dir = cfg.fsurfsubdir;       end
 if  ~isfield(cfg,'rmdepths'),         rmdepths = 1;     else    rmdepths = cfg.rmdepths;            end
+check_cfg(cfg,'pvox2AvgBrainXhem.m');
 
 hem=lower(hem);
 

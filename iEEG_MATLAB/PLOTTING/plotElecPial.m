@@ -14,7 +14,7 @@
 %    Electrode Options:
 %     eleccoord            -If 'n', no electrodes will be rendered in the
 %                           figure.  If 'y', electrode coordinates will be
-%                           taken from *.pialvox file in patient's
+%                           taken from *.DURAL file in patient's
 %                           FreeSurfer folder.  Alternatively, you
 %                           can pass a 2D matrix of coordinates
 %                           instead. {default: 'y'}
@@ -60,17 +60,19 @@
 %                           last electrode of each strip and each corner of
 %                           the 64 chan grid will be shown next to electrode.
 %                           {default: 'y'}
-%     pairs                -A nx3, 4 or 5 cell array specifying n pairs of
+%     pairs                -A nx4, nx5, or nx6 cell array specifying n pairs of
 %                           electrodes to be connected with lines.
 %                           The first two columns indicate which electrodes
 %                           are in the pair.
 %                           The third column is a 3 element vector indicating
 %                           the RGB color of the line that will be drawn
 %                           to join the pair of electrodes.
-%                           The fourth, optional, column is the text that
+%                           The fourth column is 'l' or 'r' to indicate
+%                           which hemisphere the electrodes are on.
+%                           The fifth, optional, column is the text that
 %                           will appear when the line joining the electrodes
 %                           is clicked on.
-%                           The fifth, optional, column is the connection
+%                           The sixth, optional, column is the connection
 %                           strength for each pair. The maximum value will
 %                           correspond to linewidth; others will be a ratio
 %                           of that value.
