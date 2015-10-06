@@ -244,6 +244,7 @@
 % dg 4/15 eleccolors can now be a vector of values from which a colorscale
 % is automatically derived
 % dg 6/15 now expects electrode coordinates and names in Yang method format
+% dg 9/15 elecsize now properly modulates sphere
 
 %% TO DO
 % do auto colormap for electrodes (both jet and rb)?
@@ -752,9 +753,9 @@ else
     % Prepare variables if electrodes are to be drawn as spheres
     if strcmpi(electrodeshape,'sphere')
         elec_sphere=1;
-        [sphX, sphY, sphZ]=sphere(elecsize*6);
+        [sphX, sphY, sphZ]=sphere(20);
         Zdim=size(sphZ);
-        scale_sph=2;
+        scale_sph=elecsize;
         sphX=sphX*scale_sph;
         sphY=sphY*scale_sph;
         sphZ=sphZ*scale_sph;
